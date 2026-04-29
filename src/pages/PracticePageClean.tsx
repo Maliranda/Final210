@@ -4,7 +4,6 @@ import { AppShell } from '../components/AppShell'
 import { AuthRequiredDialog } from '../components/AuthRequiredDialog'
 import {
   AppLink,
-  BackLink,
   Button,
   Card,
   Checkbox,
@@ -58,9 +57,6 @@ export default function PracticePageClean() {
       <PageLayout>
         <Heading level={1}>Practice</Heading>
         <Text>Practice your vocabulary with multiple choice, fill-in-the-blank, or matching.</Text>
-        <Text as="span">
-          <BackLink to="/" />
-        </Text>
 
         <Section title="Overview">
           <Text>

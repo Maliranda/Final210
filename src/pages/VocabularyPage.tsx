@@ -2,7 +2,7 @@ import { useVocabularyBuilderContext } from '../context/VocabularyBuilderContext
 import { AppShell } from '../components/AppShell'
 import { AuthRequiredDialog } from '../components/AuthRequiredDialog'
 import {
-  PageLayout, Heading, Text, BackLink, StatusBanner,
+  PageLayout, Heading, Text, StatusBanner,
 } from '../components/ui'
 import { useVocabularyViewModel } from '../features/vocabulary/useVocabularyViewModel'
 import { VocabularyFoldersView } from '../features/vocabulary/VocabularyFoldersView'
@@ -19,7 +19,6 @@ function VocabularyPage() {
         <Text>
           Organize your vocabulary into folders. Click a folder to view and edit its words.
         </Text>
-        <Text as="span"><BackLink to="/" /></Text>
 
         <StatusBanner loading={vm.state.loading} error={vm.state.error} />
 

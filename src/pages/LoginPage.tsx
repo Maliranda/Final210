@@ -6,7 +6,7 @@ import { authService, getAuthErrorMessage } from '../services/auth'
 import { BrandLogo } from '../components/BrandLogo'
 import { useAuth } from '../context/AuthContext'
 import {
-  PageLayout, Heading, Text, Section, Form, Input, Button, FormField, BackLink,
+  PageLayout, Heading, Text, Section, Form, Input, Button, FormField,
 } from '../components/ui'
 
 function LoginLogo() {
@@ -65,9 +65,6 @@ export default function LoginPage() {
         <Box sx={{ py: 4, px: 3, maxWidth: 480, margin: '0 auto' }}>
           <Heading level={1}>Login</Heading>
           <Text>Firebase is not configured. Add VITE_FIREBASE_* env variables to enable login.</Text>
-          <Text as="span">
-            <BackLink to="/" />
-          </Text>
         </Box>
       </PageLayout>
     )

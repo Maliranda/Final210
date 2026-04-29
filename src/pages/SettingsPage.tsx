@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 import { useAuth } from '../context/AuthContext'
 import { useThemeMode } from '../context/ThemeModeContext'
 import { AppShell } from '../components/AppShell'
-import { PageLayout, Heading, Text, Section, BackLink, AppLink, Strong, Toggle } from '../components/ui'
+import { PageLayout, Heading, Text, Section, AppLink, Strong, Toggle } from '../components/ui'
 
 export default function SettingsPage() {
   const auth = useAuth()
@@ -12,7 +12,6 @@ export default function SettingsPage() {
     <AppShell>
       <PageLayout>
         <Heading level={1}>Settings</Heading>
-        <Text as="span"><BackLink to="/" /></Text>
 
       <Section title="Appearance">
         <Toggle

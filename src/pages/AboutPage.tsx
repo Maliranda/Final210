@@ -1,12 +1,11 @@
 import { AppShell } from '../components/AppShell'
-import { PageLayout, Heading, Text, Section, BackLink, List, ListItem, Strong } from '../components/ui'
+import { PageLayout, Heading, Text, Section, List, ListItem, Strong } from '../components/ui'
 
 export default function AboutPage() {
   return (
     <AppShell>
       <PageLayout>
         <Heading level={1}>About</Heading>
-        <Text as="span"><BackLink to="/" /></Text>
 
       <Section title="Vocabulary Builder">
         <Text>
@@ -20,7 +19,7 @@ export default function AboutPage() {
           <ListItem><Strong>Words</Strong> — Add vocabulary terms with definitions</ListItem>
           <ListItem><Strong>Lists</Strong> — Organize words into themed collections</ListItem>
           <ListItem><Strong>Practice</Strong> — Multiple choice, fill-in-the-blank, and matching modes</ListItem>
-          <ListItem><Strong>Mastery tracking</Strong> — Track progress with levels 1–5</ListItem>
+          <ListItem><Strong>Mastery tracking</Strong> — Track progress with New / Learned</ListItem>
           <ListItem><Strong>Cloud sync</Strong> — Data persists via Firebase Firestore</ListItem>
           <ListItem><Strong>Authentication</Strong> — Sign in to sync across devices</ListItem>
         </List>
