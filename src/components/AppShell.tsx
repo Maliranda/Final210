@@ -3,6 +3,14 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { authService } from '../services/auth'
 import { BrandLogo } from './BrandLogo'
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded'
+import BookRoundedIcon from '@mui/icons-material/BookRounded'
+import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded'
+import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded'
+import LoginRoundedIcon from '@mui/icons-material/LoginRounded'
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded'
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded'
 
 export function AppShell({ children }: { children: ReactNode }) {
   const auth = useAuth()
@@ -33,16 +41,28 @@ export function AppShell({ children }: { children: ReactNode }) {
         </NavLink>
         <div className="nav-left">
           <NavLink to="/" end className={({ isActive }) => (isActive ? 'active' : '')}>
-            Home
+            <span className="nav-item">
+              <HomeRoundedIcon fontSize="small" />
+              Home
+            </span>
           </NavLink>
           <NavLink to="/vocabulary" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Vocabulary
+            <span className="nav-item">
+              <BookRoundedIcon fontSize="small" />
+              Vocabulary
+            </span>
           </NavLink>
           <NavLink to="/practice" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Practice
+            <span className="nav-item">
+              <SchoolRoundedIcon fontSize="small" />
+              Practice
+            </span>
           </NavLink>
           <NavLink to="/settings" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Settings
+            <span className="nav-item">
+              <SettingsRoundedIcon fontSize="small" />
+              Settings
+            </span>
           </NavLink>
         </div>
         <div className="nav-right">
@@ -53,11 +73,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             aria-expanded={mobileMenuOpen}
             onClick={() => setMobileMenuOpen(true)}
           >
-            ☰
+            <MenuRoundedIcon fontSize="small" />
           </button>
           {!auth?.user && (
             <NavLink to="/login" className={({ isActive }) => (isActive ? 'active' : '')}>
-              Login
+              <span className="nav-item">
+                <LoginRoundedIcon fontSize="small" />
+                Login
+              </span>
             </NavLink>
           )}
           {requireLogin && auth?.user && (
@@ -67,7 +90,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={handleSignOut}
               disabled={loggingOut}
             >
-              {loggingOut ? '…' : 'Sign out'}
+              <span className="nav-item">
+                <LogoutRoundedIcon fontSize="small" />
+                {loggingOut ? 'Signing out…' : 'Sign out'}
+              </span>
             </button>
           )}
         </div>
@@ -89,27 +115,42 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="mobile-menu-header">
           <div className="mobile-menu-title">Menu</div>
           <button type="button" className="mobile-menu-close" onClick={closeMobileMenu} aria-label="Close menu">
-            ✕
+            <CloseRoundedIcon fontSize="small" />
           </button>
         </div>
         <div className="mobile-menu-links">
           <NavLink to="/" end onClick={closeMobileMenu} className={({ isActive }) => (isActive ? 'active' : '')}>
-            Home
+            <span className="nav-item">
+              <HomeRoundedIcon fontSize="small" />
+              Home
+            </span>
           </NavLink>
           <NavLink to="/vocabulary" onClick={closeMobileMenu} className={({ isActive }) => (isActive ? 'active' : '')}>
-            Vocabulary
+            <span className="nav-item">
+              <BookRoundedIcon fontSize="small" />
+              Vocabulary
+            </span>
           </NavLink>
           <NavLink to="/practice" onClick={closeMobileMenu} className={({ isActive }) => (isActive ? 'active' : '')}>
-            Practice
+            <span className="nav-item">
+              <SchoolRoundedIcon fontSize="small" />
+              Practice
+            </span>
           </NavLink>
           <NavLink to="/settings" onClick={closeMobileMenu} className={({ isActive }) => (isActive ? 'active' : '')}>
-            Settings
+            <span className="nav-item">
+              <SettingsRoundedIcon fontSize="small" />
+              Settings
+            </span>
           </NavLink>
         </div>
         <div className="mobile-menu-actions">
           {!auth?.user && (
             <NavLink to="/login" onClick={closeMobileMenu} className={({ isActive }) => (isActive ? 'active' : '')}>
-              Login
+              <span className="nav-item">
+                <LoginRoundedIcon fontSize="small" />
+                Login
+              </span>
             </NavLink>
           )}
           {requireLogin && auth?.user && (
@@ -122,7 +163,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               }}
               disabled={loggingOut}
             >
-              {loggingOut ? '…' : 'Sign out'}
+              <span className="nav-item">
+                <LogoutRoundedIcon fontSize="small" />
+                {loggingOut ? 'Signing out…' : 'Sign out'}
+              </span>
             </button>
           )}
         </div>

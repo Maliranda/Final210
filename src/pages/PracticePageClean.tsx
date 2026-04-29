@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box'
+import PlayArrowRoundedIcon from '@mui/icons-material/PlayArrowRounded'
 import { AppShell } from '../components/AppShell'
 import { AuthRequiredDialog } from '../components/AuthRequiredDialog'
 import {
@@ -131,7 +132,12 @@ export default function PracticePageClean() {
                   {vm.practiceMode === 'matching' &&
                     `Match ${Math.min(vm.constants.QUESTIONS_PER_ROUND, vm.words.length)} definitions to their terms.`}
                 </Text>
-                <Button onClick={vm.startRound}>Start practice</Button>
+                <Button onClick={vm.startRound}>
+                  <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+                    <PlayArrowRoundedIcon fontSize="small" />
+                    Start practice
+                  </Box>
+                </Button>
               </>
             )}
           </Section>

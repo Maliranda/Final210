@@ -1,7 +1,11 @@
 import Box from '@mui/material/Box'
+import AddRoundedIcon from '@mui/icons-material/AddRounded'
+import CreateNewFolderRoundedIcon from '@mui/icons-material/CreateNewFolderRounded'
 import type { SelectOption } from '../../components/ui'
 import {
   Button,
+  Card,
+  EmptyState,
   Form,
   FormField,
   Input,
@@ -28,6 +32,19 @@ export function VocabularyFoldersView({ vm }: { vm: VM }) {
 
   return (
     <Section title={`Folders (${vm.lists.length})`}>
+      {vm.state.words.length === 0 && (
+        <Card>
+          <EmptyState
+            message="No words yet. Add your first word using the form below."
+            action={
+              <Text>
+                Tip: start with 5–10 words, then open <strong>Practice</strong> to test yourself.
+              </Text>
+            }
+          />
+        </Card>
+      )}
+
       <Form
         onSubmit={(e) => {
           e.preventDefault()
@@ -69,7 +86,12 @@ export function VocabularyFoldersView({ vm }: { vm: VM }) {
             onChange={(e) => vm.setAddWordMastery(e.target.value)}
           />
         </FormField>
-        <Button type="submit">Add word</Button>
+        <Button type="submit">
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+            <AddRoundedIcon fontSize="small" />
+            Add word
+          </Box>
+        </Button>
       </Form>
 
       <FormField label="Filter by mastery:">
@@ -91,7 +113,12 @@ export function VocabularyFoldersView({ vm }: { vm: VM }) {
           value={vm.newFolderName}
           onChange={(e) => vm.setNewFolderName(e.target.value)}
         />
-        <Button type="submit">Create folder</Button>
+        <Button type="submit" variant="secondary">
+          <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+            <CreateNewFolderRoundedIcon fontSize="small" />
+            Create folder
+          </Box>
+        </Button>
       </Form>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>

@@ -1,5 +1,7 @@
 import Box from '@mui/material/Box'
 import { AppLink, Heading, Strong, Text } from '../../components/ui'
+import BookRoundedIcon from '@mui/icons-material/BookRounded'
+import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded'
 
 export function HeroSection({
   wordCount,
@@ -48,7 +50,10 @@ export function HeroSection({
               },
             }}
           >
-            Go to Vocabulary
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+              <BookRoundedIcon fontSize="small" />
+              Go to Vocabulary
+            </Box>
           </AppLink>
           <AppLink
             to="/practice"
@@ -66,7 +71,10 @@ export function HeroSection({
               '&:hover': { bgcolor: 'rgba(107, 70, 193, 0.04)', color: 'primary.dark' },
             }}
           >
-            Start Practice
+            <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+              <SchoolRoundedIcon fontSize="small" />
+              Start Practice
+            </Box>
           </AppLink>
         </Box>
       </Box>

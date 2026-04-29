@@ -4,16 +4,15 @@
 
 **URL:** https://final210.vercel.app/ .
 
-> Grading note: demoing from `localhost` triggers the course “local-demo ÷2” penalty. This app is intended to be demoed from the public URL above.
 
 ## Theme
 
-A vocabulary-learning app where you can add words with definitions and example sentences, organize them into themed lists, practice with multiple modes (multiple choice, fill-in-the-blank, matching), and track mastery (1–5 scale) with filters like new, learning, familiar, and mastered. Includes quiz mode, session statistics, search, review mode, and spaced practice.
+A vocabulary-learning app where you can add words with definitions, organize them into folders (lists), practice with multiple modes (multiple choice, fill-in-the-blank, matching), and track mastery with simple filters (New / Learned). Optional Firebase Auth + Firestore sync lets users save progress per account.
 
 ## Entities
 
-- **VocabularyWord** – A word with `term`, `definition`, optional `exampleSentence`, `masteryLevel` (1–5), and optional `listId`. Supports timestamps and last-practiced tracking.
-- **WordList** – Themed list or category; has `name` and optional `description`.
+- **VocabularyWord** – A word with `term`, `definition`, optional `exampleSentence`, `masteryLevel` (1 = New, 2 = Learned), and optional `listId`. Supports timestamps and last-practiced tracking.
+- **WordList** – Folder/category; has `name` and optional `description`.
 - **PracticeSession** – Records a practice run: mode, word set, correct/total counts, and mastery level changes.
 
 State is represented by **AppState**, which holds collections of words, lists, and sessions, plus filters (current list, mastery category).
@@ -47,7 +46,7 @@ vocabulary-builder/
 │   ├── pages/
 │   │   ├── HomePage.tsx
 │   │   ├── VocabularyPage.tsx
-│   │   ├── PracticePage.tsx
+│   │   ├── PracticePageClean.tsx
 │   │   ├── SettingsPage.tsx
 │   │   ├── AboutPage.tsx
 │   │   └── LoginPage.tsx
@@ -65,6 +64,8 @@ vocabulary-builder/
 ├── vite.config.ts
 └── README.md
 ```
+
+> Note: The practice page file is currently named `PracticePageClean.tsx` due to a tooling issue that caused duplicated content when generating `PracticePage.tsx`. The route `/practice` points to `PracticePageClean.tsx`.
 
 ## How to Run
 
@@ -174,7 +175,7 @@ AI was used to generate the custom hook scaffolding from the existing type defin
 
 **Firebase Auth (email/password)**. If Firebase env vars are not set, the app runs in local-only mode without login. When configured:
 1. `AuthProvider` listens to auth state
-2. Unauthenticated users see `LoginPage`
+2. Home page stays public; protected actions (add/practice) prompt users to sign in
 3. After login, data is scoped to `users/{uid}/vocabulary/appState`
 4. Sign out button in nav
 
@@ -208,7 +209,7 @@ AI was used to generate the custom hook scaffolding from the existing type defin
    ```
 
 2. **(Optional) Configure Firebase:**
-   Create a `.env` file in the project root with your Firebase config:
+   Create a `.env.local` file in the project root with your Firebase config:
    ```
    VITE_FIREBASE_API_KEY=your-api-key
    VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
@@ -217,7 +218,7 @@ AI was used to generate the custom hook scaffolding from the existing type defin
    VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
    VITE_FIREBASE_APP_ID=1:123456789:web:abc123
    ```
-   Without this, the app runs in local-only mode (no auth, no persistence).
+   Without this, the app runs in local-only mode (no auth, no cloud sync).
 
 3. **Start the dev server:**
    ```bash

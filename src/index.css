@@ -103,6 +103,16 @@ html[data-theme="dark"] {
   transition: background 0.2s, color 0.2s;
 }
 
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.nav-item svg {
+  opacity: 0.95;
+}
+
 .nav a:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
