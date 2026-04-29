@@ -6,6 +6,9 @@ import type {
 const now = () => new Date().toISOString();
 const uuid = () => crypto.randomUUID();
 
+export const UNDEFINED_LIST_ID = '__undefined__'
+export const UNDEFINED_LIST_NAME = 'undefined'
+
 export interface VocabularyStoreState extends AppState {
   loading: boolean;
   error: string | null;
@@ -30,9 +33,23 @@ type VocabularyStoreActions = {
 const mapWord = (words: VocabularyWord[], id: string, patch: Partial<VocabularyWord>) =>
   words.map((w) => (w.id === id ? { ...w, ...patch, updatedAt: now() } : w));
 
+function ensureUndefinedList(lists: WordList[]): WordList[] {
+  if (lists.some((l) => l.id === UNDEFINED_LIST_ID)) return lists
+  const sys: WordList = { id: UNDEFINED_LIST_ID, name: UNDEFINED_LIST_NAME, createdAt: now(), updatedAt: now() }
+  return [sys, ...lists]
+}
+
+function normalizeIncomingState(state: AppState): AppState {
+  const lists = ensureUndefinedList(state.lists)
+  const words = state.words.map((w) => (w.listId == null ? { ...w, listId: UNDEFINED_LIST_ID } : w))
+  return { ...state, lists, words }
+}
+
 export const useVocabularyStore = create<VocabularyStoreState & VocabularyStoreActions>(
   (set) => ({
-    words: [], lists: [], sessions: [],
+    words: [],
+    lists: ensureUndefinedList([]),
+    sessions: [],
     currentListFilter: null, masteryFilter: null,
     loading: false, error: null,
 
@@ -41,7 +58,7 @@ export const useVocabularyStore = create<VocabularyStoreState & VocabularyStoreA
         id: uuid(), term, definition,
         exampleSentence: opts?.exampleSentence,
         masteryLevel: opts?.masteryLevel ?? 1,
-        listId: opts?.listId ?? null,
+        listId: opts?.listId ?? UNDEFINED_LIST_ID,
         lastPracticedAt: null,
         createdAt: now(), updatedAt: now(),
       };
@@ -53,7 +70,7 @@ export const useVocabularyStore = create<VocabularyStoreState & VocabularyStoreA
 
     addList: (name, description) => {
       const list: WordList = { id: uuid(), name, description, createdAt: now(), updatedAt: now() };
-      set((s) => ({ lists: [...s.lists, list] }));
+      set((s) => ({ lists: [...ensureUndefinedList(s.lists), list] }));
       return list;
     },
 
@@ -61,10 +78,13 @@ export const useVocabularyStore = create<VocabularyStoreState & VocabularyStoreA
       set((s) => ({ lists: s.lists.map((l) => (l.id === listId ? { ...l, ...updates, updatedAt: now() } : l)) })),
 
     deleteList: (listId) =>
-      set((s) => ({
-        lists: s.lists.filter((l) => l.id !== listId),
-        words: s.words.map((w) => (w.listId === listId ? { ...w, listId: null, updatedAt: now() } : w)),
-      })),
+      set((s) => {
+        if (listId === UNDEFINED_LIST_ID) return { lists: ensureUndefinedList(s.lists), words: s.words }
+        return {
+          lists: ensureUndefinedList(s.lists.filter((l) => l.id !== listId)),
+          words: s.words.map((w) => (w.listId === listId ? { ...w, listId: UNDEFINED_LIST_ID, updatedAt: now() } : w)),
+        }
+      }),
 
     updateWord: (wordId, updates) =>
       set((s) => ({ words: mapWord(s.words, wordId, updates) })),
@@ -80,7 +100,7 @@ export const useVocabularyStore = create<VocabularyStoreState & VocabularyStoreA
 
     setLoading: (loading) => set({ loading }),
     setError: (error) => set({ error }),
-    replaceState: (state) => set(state),
+    replaceState: (state) => set(normalizeIncomingState(state)),
   })
 );
 

@@ -1,10 +1,12 @@
-import { PageLayout, Heading, Text, Section, AppLink, List, ListItem, Strong } from '../components/ui'
+import { AppShell } from '../components/AppShell'
+import { PageLayout, Heading, Text, Section, BackLink, List, ListItem, Strong } from '../components/ui'
 
 export default function AboutPage() {
   return (
-    <PageLayout>
-      <Heading level={1}>About</Heading>
-      <Text as="span"><AppLink to="/">← Back to Home</AppLink></Text>
+    <AppShell>
+      <PageLayout>
+        <Heading level={1}>About</Heading>
+        <Text as="span"><BackLink to="/" /></Text>
 
       <Section title="Vocabulary Builder">
         <Text>
@@ -44,6 +46,7 @@ export default function AboutPage() {
           <ListItem><Strong>Project 5</Strong> — End-to-end assembly with Firebase persistence</ListItem>
         </List>
       </Section>
-    </PageLayout>
+      </PageLayout>
+    </AppShell>
   )
 }

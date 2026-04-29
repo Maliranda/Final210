@@ -4,6 +4,7 @@ import { useVocabularyStore, getStoreDomainState } from '../store/vocabularyStor
 import { vocabularyApi } from '../services/api'
 import { useAuth } from './AuthContext'
 import type { VocabularyStoreState } from '../store/vocabularyStore'
+import type { AppState } from '../types'
 
 type Actions = Pick<
   ReturnType<typeof useVocabularyStore.getState>,
@@ -41,10 +42,28 @@ export function VocabularyBuilderProvider({ children }: { children: ReactNode })
   const hasLocalMutationRef = useRef(false)
   const skipNextPersistRef = useRef(false)
 
+  const emptyState: AppState = {
+    words: [],
+    lists: [],
+    sessions: [],
+    currentListFilter: null,
+    masteryFilter: null,
+  }
+
   useEffect(() => {
     if (!vocabularyApi.isConfigured()) {
       actions.setLoading(false)
       actions.setError(null)
+      return
+    }
+    // Firebase is configured, but the user isn't signed in yet.
+    // Do not load or save Firestore data (avoids permission errors on public pages).
+    if (!userId) {
+      actions.setLoading(false)
+      actions.setError(null)
+      // Clear in-memory state on sign out, so previous user's data isn't visible.
+      skipNextPersistRef.current = true
+      actions.replaceState(emptyState)
       return
     }
     hasLocalMutationRef.current = false
@@ -69,7 +88,7 @@ export function VocabularyBuilderProvider({ children }: { children: ReactNode })
         if (cancelled) return
         console.error('Failed to load state:', err)
         actions.setLoading(false)
-        actions.setError(err instanceof Error ? err.message : 'Failed to load data')
+        actions.setError('We could not load your saved data. Please try again.')
       })
     return () => {
       cancelled = true
@@ -79,12 +98,13 @@ export function VocabularyBuilderProvider({ children }: { children: ReactNode })
 
   useEffect(() => {
     if (!vocabularyApi.isConfigured()) return
+    if (!userId) return
     return useVocabularyStore.subscribe(() => {
       if (skipNextPersistRef.current) { skipNextPersistRef.current = false; return }
       hasLocalMutationRef.current = true
       vocabularyApi.saveState(getStoreDomainState(), userId).catch((err) => {
         console.error('Failed to save state:', err)
-        actions.setError(err instanceof Error ? err.message : 'Failed to save data')
+        actions.setError('We could not save your changes. Please check your connection and try again.')
       })
     })
   }, [userId])

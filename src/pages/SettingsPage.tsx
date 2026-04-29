@@ -1,20 +1,47 @@
 import Box from '@mui/material/Box'
 import { useAuth } from '../context/AuthContext'
-import { PageLayout, Heading, Text, Section, AppLink, Strong } from '../components/ui'
+import { useThemeMode } from '../context/ThemeModeContext'
+import { AppShell } from '../components/AppShell'
+import { PageLayout, Heading, Text, Section, BackLink, AppLink, Strong, Toggle } from '../components/ui'
 
 export default function SettingsPage() {
   const auth = useAuth()
+  const themeMode = useThemeMode()
 
   return (
-    <PageLayout>
-      <Heading level={1}>Settings</Heading>
-      <Text as="span"><AppLink to="/">← Back to Home</AppLink></Text>
+    <AppShell>
+      <PageLayout>
+        <Heading level={1}>Settings</Heading>
+        <Text as="span"><BackLink to="/" /></Text>
+
+      <Section title="Appearance">
+        <Toggle
+          checked={themeMode.mode === 'dark'}
+          label="Dark mode"
+          onChange={(checked) => themeMode.setMode(checked ? 'dark' : 'light')}
+        />
+      </Section>
 
       <Section title="Account">
         {auth?.user ? (
           <>
             <Text>Signed in as: <Strong>{auth.user.email}</Strong></Text>
-            <Text>User ID: <Box component="code" sx={{ fontSize: '0.85em', bgcolor: 'grey.100', px: 0.5, borderRadius: 1 }}>{auth.user.uid}</Box></Text>
+            <Text>
+              User ID:{' '}
+              <Box
+                component="code"
+                sx={(theme) => ({
+                  fontSize: '0.85em',
+                  px: 0.75,
+                  py: 0.25,
+                  borderRadius: 1,
+                  bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'grey.100',
+                  color: theme.palette.mode === 'dark' ? 'text.primary' : 'text.primary',
+                })}
+              >
+                {auth.user.uid}
+              </Box>
+            </Text>
           </>
         ) : (
           <Text>Not signed in. Data is stored locally only.</Text>
@@ -36,6 +63,7 @@ export default function SettingsPage() {
         </Text>
         <Text as="span"><AppLink to="/about">More about the app →</AppLink></Text>
       </Section>
-    </PageLayout>
+      </PageLayout>
+    </AppShell>
   )
 }

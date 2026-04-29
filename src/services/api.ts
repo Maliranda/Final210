@@ -58,10 +58,10 @@ export interface IVocabularyApi {
 const now = () => new Date().toISOString()
 const uuid = () => crypto.randomUUID()
 
-export const vocabularyApi: IVocabularyApi = {
-  isConfigured() {
+export class FirebaseVocabularyApi implements IVocabularyApi {
+  isConfigured(): boolean {
     return isFirebaseConfigured()
-  },
+  }
 
   async loadState(userId?: string | null): Promise<AppState> {
     const db = getFirestoreInstance()
@@ -73,7 +73,7 @@ export const vocabularyApi: IVocabularyApi = {
 
     const snap = await getDoc(ref)
     return parseState(snap.exists() ? snap.data() : null)
-  },
+  }
 
   async saveState(state: AppState, userId?: string | null): Promise<void> {
     const db = getFirestoreInstance()
@@ -84,22 +84,39 @@ export const vocabularyApi: IVocabularyApi = {
       : doc(db, 'vocabulary', APP_STATE_DOC_ID)
 
     await setDoc(ref, stripUndefined(state))
-  },
+  }
 
-  async getWords(): Promise<VocabularyWord[]> { return [] },
+  async getWords(): Promise<VocabularyWord[]> {
+    return []
+  }
 
-  async addWord(word) {
+  async addWord(word: Omit<VocabularyWord, 'id' | 'createdAt' | 'updatedAt' | 'lastPracticedAt'>): Promise<VocabularyWord> {
     return { ...word, id: uuid(), lastPracticedAt: null, createdAt: now(), updatedAt: now() }
-  },
+  }
 
-  async updateWord(): Promise<VocabularyWord | null> { return null },
-  async deleteWord(): Promise<boolean> { return true },
-  async getLists(): Promise<WordList[]> { return [] },
+  async updateWord(): Promise<VocabularyWord | null> {
+    return null
+  }
 
-  async addList(list) {
+  async deleteWord(): Promise<boolean> {
+    return true
+  }
+
+  async getLists(): Promise<WordList[]> {
+    return []
+  }
+
+  async addList(list: Omit<WordList, 'id' | 'createdAt' | 'updatedAt'>): Promise<WordList> {
     return { ...list, id: uuid(), createdAt: now(), updatedAt: now() }
-  },
+  }
 
-  async getSessions(): Promise<PracticeSession[]> { return [] },
-  async recordSession(session) { return session },
+  async getSessions(): Promise<PracticeSession[]> {
+    return []
+  }
+
+  async recordSession(session: PracticeSession): Promise<PracticeSession> {
+    return session
+  }
 }
+
+export const vocabularyApi: IVocabularyApi = new FirebaseVocabularyApi()

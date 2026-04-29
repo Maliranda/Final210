@@ -2,7 +2,7 @@
 
 ## Live Demo (deployed URL)
 
-**URL:** TODO — paste your deployed URL here (example: `https://your-app.vercel.app`).
+**URL:** https://final210.vercel.app/ .
 
 > Grading note: demoing from `localhost` triggers the course “local-demo ÷2” penalty. This app is intended to be demoed from the public URL above.
 

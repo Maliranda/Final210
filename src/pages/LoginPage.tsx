@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { authService } from '../services/auth'
+import { useNavigate } from 'react-router-dom'
+import { authService, getAuthErrorMessage } from '../services/auth'
+import { BrandLogo } from '../components/BrandLogo'
+import { useAuth } from '../context/AuthContext'
 import {
-  PageLayout, Heading, Text, Section, Form, Input, Button, FormField,
+  PageLayout, Heading, Text, Section, Form, Input, Button, FormField, BackLink,
 } from '../components/ui'
 
 function LoginLogo() {
@@ -30,15 +33,10 @@ function LoginLogo() {
           mb: 2,
         }}
       >
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-          <path d="M8 7h8" />
-          <path d="M8 11h6" />
-        </svg>
+        <BrandLogo size={44} />
       </Box>
       <Typography variant="h4" fontWeight={700} color="primary.main" letterSpacing="-0.02em">
-        Vocabulary Builder
+        Vocabify
       </Typography>
     </Box>
   )
@@ -47,12 +45,19 @@ function LoginLogo() {
 type Tab = 'signin' | 'signup'
 
 export default function LoginPage() {
+  const auth = useAuth()
+  const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (auth?.user) navigate('/', { replace: true })
+  }, [auth?.user, navigate])
 
   if (!authService.isConfigured()) {
     return (
@@ -60,6 +65,9 @@ export default function LoginPage() {
         <Box sx={{ py: 4, px: 3, maxWidth: 480, margin: '0 auto' }}>
           <Heading level={1}>Login</Heading>
           <Text>Firebase is not configured. Add VITE_FIREBASE_* env variables to enable login.</Text>
+          <Text as="span">
+            <BackLink to="/" />
+          </Text>
         </Box>
       </PageLayout>
     )
@@ -68,6 +76,7 @@ export default function LoginPage() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(null)
     if (!email.trim() || !password) {
       setError('Enter email and password.')
       return
@@ -75,8 +84,10 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await authService.signIn(email.trim(), password)
+      setSuccess('Signed in successfully.')
+      navigate('/', { replace: true })
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Sign in failed.')
+      setError(getAuthErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -85,6 +96,7 @@ export default function LoginPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setSuccess(null)
     if (!email.trim() || !password) {
       setError('Enter email and password.')
       return
@@ -100,8 +112,10 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await authService.signUp(email.trim(), password)
+      setSuccess('Successfully registered.')
+      navigate('/', { replace: true })
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Sign up failed.')
+      setError(getAuthErrorMessage(err))
     } finally {
       setLoading(false)
     }
@@ -124,13 +138,19 @@ export default function LoginPage() {
 
         <Section title={tab === 'signin' ? 'Sign in' : 'Create account'}>
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <Button variant={tab === 'signin' ? 'primary' : 'secondary'} onClick={() => { setTab('signin'); setError(null) }}>
+          <Button variant={tab === 'signin' ? 'primary' : 'secondary'} onClick={() => { setTab('signin'); setError(null); setSuccess(null) }}>
             Sign in
           </Button>
-          <Button variant={tab === 'signup' ? 'primary' : 'secondary'} onClick={() => { setTab('signup'); setError(null) }}>
+          <Button variant={tab === 'signup' ? 'primary' : 'secondary'} onClick={() => { setTab('signup'); setError(null); setSuccess(null) }}>
             Sign up
           </Button>
         </Box>
+
+        {success && (
+          <Box sx={{ p: 1, mb: 1, borderRadius: 1, bgcolor: 'success.light', color: 'success.dark' }}>
+            <Text>{success}</Text>
+          </Box>
+        )}
 
         {error && (
           <Box sx={{ p: 1, mb: 1, borderRadius: 1, bgcolor: 'error.light', color: 'error.dark' }}>
