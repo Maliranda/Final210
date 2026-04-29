@@ -1,0 +1,159 @@
+/* Шрифт Inter подключается в index.html через <link>, чтобы не блокировать отрисовку */
+:root {
+  --color-primary: #6B46C1;
+  --color-primary-dark: #5B3AA8;
+  --color-primary-light: #9F7AEA;
+  --color-gradient-start: #7C3AED;
+  --color-gradient-end: #A78BFA;
+  --color-bg: #FAFAFA;
+  --color-surface: #ffffff;
+  --color-text: #1F2937;
+  --color-text-muted: #6B7280;
+  --shadow-soft: 0 4px 20px rgba(107, 70, 193, 0.08);
+  --shadow-card: 0 4px 24px rgba(107, 70, 193, 0.12);
+  --radius: 12px;
+  --radius-lg: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header / Nav — Notero-style purple bar */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.75rem 3rem;
+  background: linear-gradient(135deg, var(--color-gradient-start) 0%, var(--color-primary) 50%, var(--color-primary-dark) 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(107, 70, 193, 0.25);
+}
+
+.nav-brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-brand:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.nav-brand-icon {
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.nav a.active {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.nav-sign-out {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  font: inherit;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-sign-out:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.nav-sign-out:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.main {
+  flex: 1;
+  padding: 2.5rem 3rem;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .main {
+    padding: 1.5rem 1.25rem;
+  }
+}
+
+/* Decorative blob for hero (optional) */
+.hero-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-blob {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(167, 139, 250, 0.1) 100%);
+  pointer-events: none;
+  top: -120px;
+  right: -120px;
+}
+
+.hero-blob--left {
+  top: 40%;
+  left: -100px;
+  right: auto;
+  width: 280px;
+  height: 280px;
+  opacity: 0.8;
+}
