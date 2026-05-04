@@ -2,7 +2,7 @@ import { useVocabularyBuilderContext } from '../context/VocabularyBuilderContext
 import { AppShell } from '../components/AppShell'
 import { AuthRequiredDialog } from '../components/AuthRequiredDialog'
 import {
-  PageLayout, Heading, Text, StatusBanner,
+  PageLayout, Heading, Text, StatusBanner, FeedbackSnackbar,
 } from '../components/ui'
 import { useVocabularyViewModel } from '../features/vocabulary/useVocabularyViewModel'
 import { VocabularyFoldersView } from '../features/vocabulary/VocabularyFoldersView'
@@ -33,6 +33,12 @@ function VocabularyPage() {
           message={vm.authGate.message}
           onCancel={() => vm.authGate.setOpen(false)}
           onGoLogin={vm.authGate.goLogin}
+        />
+
+        <FeedbackSnackbar
+          open={vm.feedback.open}
+          message={vm.feedback.message}
+          onClose={vm.dismissFeedback}
         />
       </PageLayout>
     </AppShell>

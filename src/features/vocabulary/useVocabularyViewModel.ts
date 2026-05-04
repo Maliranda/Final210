@@ -35,6 +35,10 @@ export function useVocabularyViewModel() {
   const [addWordMastery, setAddWordMastery] = useState('1')
   const [addWordFolderId, setAddWordFolderId] = useState('')
   const [newFolderNameForWord, setNewFolderNameForWord] = useState('')
+  const [feedback, setFeedback] = useState<{ open: boolean; message: string }>({ open: false, message: '' })
+
+  const showValidationFeedback = (message: string) => setFeedback({ open: true, message })
+  const dismissFeedback = () => setFeedback((f) => ({ ...f, open: false }))
 
   const lists = state.lists
   const selectedList = selectedListId ? lists.find((l) => l.id === selectedListId) ?? null : null
@@ -49,7 +53,10 @@ export function useVocabularyViewModel() {
 
   const createFolder = () => {
     if (!authGate.guard()) return
-    if (!newFolderName.trim()) return
+    if (!newFolderName.trim()) {
+      showValidationFeedback('Please enter a folder name. Required fields cannot be left empty.')
+      return
+    }
     const created = addList(newFolderName.trim())
     setNewFolderName('')
     setSelectedListId(created.id)
@@ -65,13 +72,19 @@ export function useVocabularyViewModel() {
 
   const addWordFromForm = () => {
     if (!authGate.guard()) return
-    if (!term.trim() || !definition.trim()) return
+    if (!term.trim() || !definition.trim()) {
+      showValidationFeedback('Please fill in the term and definition. Required fields cannot be left empty.')
+      return
+    }
     const level = MASTERY_LEVEL_FROM_STRING(addWordMastery)
 
     let targetListId = selectedList?.id ?? UNDEFINED_LIST_ID
     if (!selectedList) {
       if (addWordFolderId === '__new__') {
-        if (!newFolderNameForWord.trim()) return
+        if (!newFolderNameForWord.trim()) {
+          showValidationFeedback('Please enter a name for the new folder. Required fields cannot be left empty.')
+          return
+        }
         targetListId = addList(newFolderNameForWord.trim()).id
         setNewFolderNameForWord('')
       } else if (addWordFolderId) {
@@ -182,6 +195,9 @@ export function useVocabularyViewModel() {
     confirmDeleteFolder,
 
     authGate,
+
+    feedback,
+    dismissFeedback,
   }
 }
 

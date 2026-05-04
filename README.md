@@ -2,7 +2,7 @@
 
 ## Live Demo (deployed URL)
 
-**URL:** https://final210.vercel.app/ .
+**URL:** https://final210.vercel.app/
 
 
 ## Theme
@@ -65,8 +65,6 @@ vocabulary-builder/
 └── README.md
 ```
 
-> Note: The practice page file is currently named `PracticePageClean.tsx` due to a tooling issue that caused duplicated content when generating `PracticePage.tsx`. The route `/practice` points to `PracticePageClean.tsx`.
-
 ## How to Run
 
 1. Install dependencies:
@@ -128,8 +126,8 @@ Even with Firebase configured, the **home page remains public**; sign-in is opti
 3. **deleteWord** – Removes a word by id from the words array.
 4. **addList** – Creates a new word list with name and optional description.
 5. **setCurrentListFilter** – Sets or clears the current list filter (list id or null).
-6. **setMasteryFilter** – Sets or clears the mastery category filter (new, learning, familiar, mastered, or null).
-7. **updateWordMastery** – Updates a word’s mastery level (1–5) by word id.
+6. **setMasteryFilter** – Sets or clears the mastery category filter (`new`, `learned`, or `null`).
+7. **updateWordMastery** – Updates a word’s mastery level (`1` = New, `2` = Learned) by word id.
 8. **recordPracticeSession** – Appends a practice session to the sessions array.
 
 ### Running Tests
@@ -161,7 +159,7 @@ AI was used to generate the custom hook scaffolding from the existing type defin
 - **Library:** Zustand (v5)
 - **Store:** `src/store/vocabularyStore.ts` — single source of truth with `loading` and `error` for async operations
 - **Context bridge:** `VocabularyBuilderContext` reads from store via `useShallow`, exposes same API to pages
-- **API service:** `src/services/api.ts` — TypeScript interface `IVocabularyApi` with placeholder implementations
+- **API service:** `src/services/api.ts` — `IVocabularyApi` and Firestore `loadState` / `saveState` for signed-in users
 
 ---
 
