@@ -1,0 +1,8 @@
+node_modules
+test
+test-results
+npm-debug.log
+Dockerfile
+.dockerignore
+*.md
+eslint.config.js
