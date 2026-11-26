@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: vocabulary-pg
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: vocabulary-manual
+  hostPath:
+    path: /var/local/vocabulary-pg
+    type: DirectoryOrCreate
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: vocabulary-role
+              operator: In
+              values:
+                - database
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vocabulary-pg
+  namespace: vocabulary
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: vocabulary-manual
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: vocabulary
+spec:
+  selector:
+    app: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: vocabulary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      nodeSelector:
+        vocabulary-role: database
+      securityContext:
+        fsGroup: 70
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: vocabulary-config
+                  key: PGUSER
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: vocabulary-config
+                  key: PGDATABASE
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: vocabulary-db
+                  key: PGPASSWORD
+          readinessProbe:
+            exec:
+              command: ["pg_isready", "-U", "vocabulary", "-d", "vocabulary"]
+            periodSeconds: 5
+            timeoutSeconds: 3
+          livenessProbe:
+            exec:
+              command: ["pg_isready", "-U", "vocabulary", "-d", "vocabulary"]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: "500m"
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: vocabulary-pg
