@@ -76,10 +76,6 @@ export function createApp(db) {
 
   app.post('/api/words', async (req, res, next) => {
     const parsed = validateWordInput(req.body);
-    if (!parsed.ok) {
-      res.status(400).json({ error: parsed.error });
-      return;
-    }
 
     try {
       const result = await db.query(
