@@ -20,13 +20,13 @@ Image size, from `docker image ls` on this machine: **199MB**. The official `nod
 
 The image is pushed to `ghcr.io/maliranda/final210` only when the event is a push to `main`. Pull requests build it and do not push it.
 
-Red run, and the green run that fixed it:
+Red run, and the green run that fixed it.
 
-```
-(links added once GitHub Actions has finished the failing run and the fix)
-```
+The red run is the pull request run on the commit that let a blank term through: [run 45778722974](https://github.com/Maliranda/Final210/actions/runs/45778722974). Lint passed. The test `rejects an empty term before it is stored` failed. The image job was skipped, which is what `needs: test` is there for. The push of that same commit failed the same way: [run 45778708784](https://github.com/Maliranda/Final210/actions/runs/45778708784).
 
-What the red run is: a commit that stores a word with an empty term. The test `rejects an empty term before it is stored` fails, so the image job does not run. The following commit rejects that input again.
+The fix is [run 45778837418](https://github.com/Maliranda/Final210/actions/runs/45778837418). Lint, test, and image all succeeded. The push of that commit is [run 45778831740](https://github.com/Maliranda/Final210/actions/runs/45778831740), also green.
+
+The green run on `main`, which is the one that logs into GHCR and pushes `ghcr.io/maliranda/final210`, is [run 45779224728](https://github.com/Maliranda/Final210/actions/runs/45779224728). The image job logged in and the build-and-push step succeeded.
 
 ## Infrastructure as Code
 
@@ -117,7 +117,7 @@ Cost, if it ran continuously: on this laptop, electricity only, under a dollar o
 
 ## Source control
 
-Work is on a branch, in small commits, and merged through a pull request with a review comment. The pipeline on `main` is the green run that publishes the image.
+The work is on `feature/vocabulary-service`, in small commits, and merged through [pull request 1](https://github.com/Maliranda/Final210/pull/1). The review comment on `k8s/api.yaml` is about why readiness checks the database and liveness does not. The pipeline on `main` is the green run that publishes the image.
 
 ## Presentation
 
