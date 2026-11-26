@@ -3,3 +3,13 @@ dist
 .env
 .env.local
 tsconfig.tsbuildinfo
+api/node_modules
+api/test-results
+.secrets/
+.tools/
+terraform/.terraform/
+terraform/kubeconfig
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/crash.log
+terraform/crash.*.log

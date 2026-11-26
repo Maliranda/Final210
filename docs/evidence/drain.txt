@@ -1,0 +1,4 @@
+node/vocabulary-worker2 cordoned
+evicting pod vocabulary/vocabulary-api-57867f77cc-jprmt
+pod/vocabulary-api-57867f77cc-jprmt evicted
+node/vocabulary-worker2 drained

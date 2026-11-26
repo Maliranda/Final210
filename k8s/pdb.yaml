@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: vocabulary-api
+  namespace: vocabulary
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: vocabulary-api

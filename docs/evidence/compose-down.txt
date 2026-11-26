@@ -1,0 +1,3 @@
+===== compose down =====
+===== leftover containers =====
+(none above means the cluster and compose are gone)

@@ -1,0 +1,2 @@
+database node: vocabulary-worker
+draining node: vocabulary-worker2

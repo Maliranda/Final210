@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vocabulary-config
+  namespace: vocabulary
+data:
+  PORT: "8080"
+  APP_VERSION: "1"
+  PGHOST: postgres
+  PGPORT: "5432"
+  PGUSER: vocabulary
+  PGDATABASE: vocabulary
