@@ -1,0 +1,10 @@
+===== second apply =====
+namespace/vocabulary unchanged
+configmap/vocabulary-config unchanged
+persistentvolume/vocabulary-pg unchanged
+persistentvolumeclaim/vocabulary-pg unchanged
+service/postgres unchanged
+deployment.apps/postgres unchanged
+deployment.apps/vocabulary-api unchanged
+service/vocabulary-api unchanged
+poddisruptionbudget.policy/vocabulary-api configured

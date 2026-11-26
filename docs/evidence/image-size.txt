@@ -1,0 +1,4 @@
+===== image size =====
+vocabulary-api:local 199MB
+vocabulary-api:latest 199MB
+node:22-alpine 234MB

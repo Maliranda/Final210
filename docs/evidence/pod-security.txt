@@ -1,0 +1,5 @@
+===== pod security =====
+uid=1000(node) gid=1000(node) groups=1000(node)
+root filesystem is read-only
+VmSize:	  460724 kB
+VmRSS:	   71272 kB

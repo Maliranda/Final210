@@ -1,0 +1,12 @@
+===== destroy =====
+kind_cluster.vocabulary: Refreshing state... [id=vocabulary-]
+
+Plan: 0 to add, 0 to change, 1 to destroy.
+
+kind_cluster.vocabulary: Destroying... [id=vocabulary-]
+kind_cluster.vocabulary: Destruction complete after 5s
+
+Destroy complete! Resources: 1 destroyed.
+
+The full plan Terraform printed also contained the kind cluster's client key.
+That key died with the cluster. It is not copied here.

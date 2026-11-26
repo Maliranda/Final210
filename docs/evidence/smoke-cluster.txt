@@ -1,0 +1,9 @@
+===== smoke =====
+GET /health
+{"status":"ok","version":"1"}
+POST /api/words
+{"word":{"id":"e4586ac4-31d0-4d39-b4cf-cbcdac99c741","term":"ephemeral","definition":"lasting for a short time","masteryLevel":1,"createdAt":"2026-11-26T07:45:10.553Z"}}
+PATCH /api/words/e4586ac4-31d0-4d39-b4cf-cbcdac99c741
+{"word":{"id":"e4586ac4-31d0-4d39-b4cf-cbcdac99c741","term":"ephemeral","definition":"lasting for a short time","masteryLevel":2,"createdAt":"2026-11-26T07:45:10.553Z"}}
+GET /api/words
+{"words":[{"id":"e4586ac4-31d0-4d39-b4cf-cbcdac99c741","term":"ephemeral","definition":"lasting for a short time","masteryLevel":2,"createdAt":"2026-11-26T07:45:10.553Z"}]}

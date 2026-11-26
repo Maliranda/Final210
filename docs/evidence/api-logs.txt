@@ -1,0 +1,16 @@
+===== logs =====
+{"level":"warn","message":"database not ready","attempt":24}
+{"level":"warn","message":"database not ready","attempt":25}
+{"level":"warn","message":"database not ready","attempt":26}
+{"level":"warn","message":"database not ready","attempt":27}
+{"level":"info","message":"listening","port":8080,"version":"1"}
+{"level":"info","method":"GET","path":"/health/ready","status":200,"ms":17}
+{"level":"info","method":"GET","path":"/health/ready","status":200,"ms":67}
+{"level":"info","method":"GET","path":"/health/ready","status":200,"ms":14}
+{"level":"info","method":"GET","path":"/health/live","status":200,"ms":4}
+{"level":"info","method":"GET","path":"/health/ready","status":200,"ms":4}
+{"level":"info","method":"GET","path":"/health/ready","status":200,"ms":43}
+{"level":"info","method":"GET","path":"/health/live","status":200,"ms":4}
+{"level":"info","method":"GET","path":"/health/ready","status":200,"ms":18}
+{"level":"info","method":"POST","path":"/api/words","status":201,"ms":16}
+{"level":"info","method":"GET","path":"/api/words","status":200,"ms":3}
