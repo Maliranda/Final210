@@ -1,5 +1,5 @@
 ===== terraform plan =====
-kind_cluster.vocabulary: Refreshing state... [id=vocabulary-]
+null_resource.minikube: Refreshing state... [id=708290053602419324]
 
 No changes. Your infrastructure matches the configuration.
 

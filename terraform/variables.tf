@@ -1,5 +1,5 @@
 variable "cluster_name" {
-  description = "Kind cluster name. Node names and the kubeconfig context are derived from it."
+  description = "Minikube profile name. The kubectl context uses the same name."
   type        = string
   default     = "vocabulary"
 }

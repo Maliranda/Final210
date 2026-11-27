@@ -1,12 +1,42 @@
-===== destroy =====
-kind_cluster.vocabulary: Refreshing state... [id=vocabulary-]
+null_resource.minikube: Refreshing state... [id=708290053602419324]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # null_resource.minikube will be destroyed
+  - resource "null_resource" "minikube" {
+      - id       = "708290053602419324" -> null
+      - triggers = {
+          - "cpus"    = "2"
+          - "driver"  = "docker"
+          - "memory"  = "2048"
+          - "nodes"   = "3"
+          - "profile" = "vocabulary"
+        } -> null
+    }
 
 Plan: 0 to add, 0 to change, 1 to destroy.
 
-kind_cluster.vocabulary: Destroying... [id=vocabulary-]
-kind_cluster.vocabulary: Destruction complete after 5s
+Changes to Outputs:
+  - api_url         = "http://127.0.0.1:30080" -> null
+  - cluster_name    = "vocabulary" -> null
+  - context_name    = "vocabulary" -> null
+  - kubeconfig_path = "./kubeconfig" -> null
+null_resource.minikube: Destroying... [id=708290053602419324]
+null_resource.minikube: Provisioning with 'local-exec'...
+null_resource.minikube (local-exec): Executing: ["/bin/bash" "-c" "minikube delete --profile='vocabulary'"]
+null_resource.minikube (local-exec): * Deleting "vocabulary" in docker ...
+null_resource.minikube (local-exec): * Deleting container "vocabulary" ...
+null_resource.minikube (local-exec): * Deleting container "vocabulary-m02" ...
+null_resource.minikube (local-exec): * Deleting container "vocabulary-m03" ...
+null_resource.minikube: Still destroying... [id=708290053602419324, 00m10s elapsed]
+null_resource.minikube (local-exec): * Removing /Users/lizamaranda/.minikube/machines/vocabulary ...
+null_resource.minikube (local-exec): * Removing /Users/lizamaranda/.minikube/machines/vocabulary-m02 ...
+null_resource.minikube (local-exec): * Removing /Users/lizamaranda/.minikube/machines/vocabulary-m03 ...
+null_resource.minikube (local-exec): * Removed all traces of the "vocabulary" cluster.
+null_resource.minikube: Destruction complete after 13s
 
 Destroy complete! Resources: 1 destroyed.
-
-The full plan Terraform printed also contained the kind cluster's client key.
-That key died with the cluster. It is not copied here.

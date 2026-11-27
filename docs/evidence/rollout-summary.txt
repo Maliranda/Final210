@@ -1,6 +1,6 @@
-samples 565
-ok 565
+samples 562
+ok 562
 failed 0
-saw version 1: 533
-saw version 2: 32
+saw version 1: 534
+saw version 2: 28
 longest gap seconds 0.000

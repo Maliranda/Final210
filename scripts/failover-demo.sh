@@ -4,38 +4,33 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-$ROOT/terraform/kubeconfig}"
-URL="${1:-http://127.0.0.1:30080/health}"
 EVIDENCE="$ROOT/docs/evidence"
 mkdir -p "$EVIDENCE"
 LOG="$EVIDENCE/failover-requests.log"
 DURATION="${DURATION:-90}"
 
-python3 - "$URL" "$LOG" "$DURATION" <<'PY' &
-import sys, time, urllib.request
-url, out, duration = sys.argv[1], sys.argv[2], float(sys.argv[3])
-end = time.time() + duration
-with open(out, "w", encoding="utf-8") as fh:
-    while time.time() < end:
-        started = time.time()
-        code = "ERR"
-        detail = ""
-        try:
-            with urllib.request.urlopen(url, timeout=2) as res:
-                code = str(res.status)
-                detail = res.read(160).decode("utf-8", "replace").replace("\n", " ")
-        except Exception as exc:
-            detail = type(exc).__name__
-        fh.write(f"{started:.3f} {code} {detail}\n")
-        fh.flush()
-        time.sleep(0.25)
-PY
+# Probe from the Postgres pod. kubectl port-forward sticks to one API pod and
+# dies with it, which would look like an outage that the Service did not have.
+kubectl -n vocabulary exec deploy/postgres -- sh -c "
+end=\$((\$(date +%s) + ${DURATION}))
+while [ \$(date +%s) -lt \$end ]; do
+  ts=\$(date +%s)
+  if body=\$(wget -qO- --timeout=2 http://vocabulary-api.vocabulary.svc/health); then
+    echo \"\$ts 200 \$body\"
+  else
+    echo \"\$ts ERR\"
+  fi
+  sleep 0.25
+done
+" > "$LOG" &
 PROBE=$!
 
 sleep 5
 kubectl -n vocabulary get pods -o wide | tee "$EVIDENCE/pods-before-drain.txt"
 
 DB_NODE="$(kubectl get pod -n vocabulary -l app=postgres -o jsonpath='{.items[0].spec.nodeName}')"
-APP_NODE="$(kubectl get pod -n vocabulary -l app=vocabulary-api -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | grep -v "^${DB_NODE}$" | head -1 || true)"
+CP_NODE="$(kubectl get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{.items[0].metadata.name}')"
+APP_NODE="$(kubectl get pod -n vocabulary -l app=vocabulary-api -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | grep -v "^${DB_NODE}$" | grep -v "^${CP_NODE}$" | head -1 || true)"
 
 {
   echo "database node: ${DB_NODE}"
@@ -91,9 +86,5 @@ if fail_start is not None:
 print(f"longest gap seconds {longest:.3f}")
 print(f"window seconds {rows[-1][0] - rows[0][0]:.3f}")
 if bad:
-    print("failed lines:")
-    for line in open(sys.argv[1], encoding="utf-8"):
-        parts = line.split()
-        if len(parts) > 1 and parts[1] != "200":
-            print(line.rstrip())
+    print("first failed line:", " ".join(str(part) for part in [bad[0][0], bad[0][1]]))
 PY

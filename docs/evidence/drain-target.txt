@@ -1,2 +1,2 @@
-database node: vocabulary-worker
-draining node: vocabulary-worker2
+database node: vocabulary-m02
+draining node: vocabulary-m03

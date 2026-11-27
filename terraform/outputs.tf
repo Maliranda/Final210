@@ -1,16 +1,16 @@
 output "cluster_name" {
-  description = "Kind cluster name."
-  value       = kind_cluster.vocabulary.name
+  description = "Minikube profile name."
+  value       = var.cluster_name
 }
 
 output "context_name" {
-  description = "kubectl context written into the kubeconfig."
-  value       = kind_cluster.vocabulary.context_name
+  description = "kubectl context. Minikube names it after the profile."
+  value       = var.cluster_name
 }
 
 output "kubeconfig_path" {
-  description = "Kubeconfig for this cluster. It is gitignored."
-  value       = kind_cluster.vocabulary.kubeconfig_path
+  description = "Kubeconfig written by terraform apply. It is gitignored."
+  value       = "${path.module}/kubeconfig"
 }
 
 output "api_url" {

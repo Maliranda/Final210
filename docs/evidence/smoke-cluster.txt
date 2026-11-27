@@ -2,8 +2,8 @@
 GET /health
 {"status":"ok","version":"1"}
 POST /api/words
-{"word":{"id":"e4586ac4-31d0-4d39-b4cf-cbcdac99c741","term":"ephemeral","definition":"lasting for a short time","masteryLevel":1,"createdAt":"2026-11-26T07:45:10.553Z"}}
-PATCH /api/words/e4586ac4-31d0-4d39-b4cf-cbcdac99c741
-{"word":{"id":"e4586ac4-31d0-4d39-b4cf-cbcdac99c741","term":"ephemeral","definition":"lasting for a short time","masteryLevel":2,"createdAt":"2026-11-26T07:45:10.553Z"}}
+{"word":{"id":"fd55338c-0fc4-4ac8-a75b-70e907a902f3","term":"ephemeral","definition":"lasting for a short time","masteryLevel":1,"createdAt":"2026-11-27T12:57:40.645Z"}}
+PATCH /api/words/fd55338c-0fc4-4ac8-a75b-70e907a902f3
+{"word":{"id":"fd55338c-0fc4-4ac8-a75b-70e907a902f3","term":"ephemeral","definition":"lasting for a short time","masteryLevel":2,"createdAt":"2026-11-27T12:57:40.645Z"}}
 GET /api/words
-{"words":[{"id":"e4586ac4-31d0-4d39-b4cf-cbcdac99c741","term":"ephemeral","definition":"lasting for a short time","masteryLevel":2,"createdAt":"2026-11-26T07:45:10.553Z"}]}
+{"words":[{"id":"fd55338c-0fc4-4ac8-a75b-70e907a902f3","term":"ephemeral","definition":"lasting for a short time","masteryLevel":2,"createdAt":"2026-11-27T12:57:40.645Z"}]}

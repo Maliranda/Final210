@@ -1,0 +1,5 @@
+===== nodes =====
+NAME             STATUS   ROLES           AGE     VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION             CONTAINER-RUNTIME
+vocabulary       Ready    control-plane   3m20s   v1.37.0   192.168.58.2   <none>        Debian GNU/Linux 12 (bookworm)   6.10.14-linuxkit (arm64)   containerd://2.3.4
+vocabulary-m02   Ready    <none>          2m22s   v1.37.0   192.168.58.3   <none>        Debian GNU/Linux 12 (bookworm)   6.10.14-linuxkit (arm64)   containerd://2.3.4
+vocabulary-m03   Ready    <none>          103s    v1.37.0   192.168.58.4   <none>        Debian GNU/Linux 12 (bookworm)   6.10.14-linuxkit (arm64)   containerd://2.3.4

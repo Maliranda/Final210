@@ -30,17 +30,17 @@ The list is the product. For that hour nobody can add a word or check one. The s
 
 ## Track
 
-Local. A multi-node [kind](https://kind.sigs.k8s.io/) cluster on this machine, created by Terraform. I am not using AWS. A cloud load balancer would cost money for the same demonstration: two backends, health checks, and traffic that keeps flowing when one backend is removed. Kind does that on a laptop, and I can tear the cluster down with `terraform destroy`.
+Local. A multi-node [minikube](https://minikube.sigs.k8s.io/) cluster on this machine, started by Terraform. This is the local Kubernetes from the course. I am not using AWS. A cloud load balancer would cost money for the same demonstration: two backends, health checks, and traffic that keeps flowing when one backend is removed. Minikube does that on a laptop with `minikube start --nodes=3`, and `terraform destroy` runs `minikube delete`.
 
 ## Architecture
 
-![Vocabulary Builder on a local kind cluster](docs/architecture.svg)
+![Vocabulary Builder on a local minikube cluster](docs/architecture.svg)
 
-The same picture, as text: GitHub Actions lints, tests, and builds the image, and pushes it to GHCR on `main`. Terraform creates a kind cluster with one control-plane and two workers. The API Deployment has two replicas, spread across those workers, behind a NodePort. Postgres is one pod on the database worker, with a PersistentVolume. The API reads its configuration from a ConfigMap and the database password from a Secret.
+The same picture, as text: GitHub Actions lints, tests, and builds the image, and pushes it to GHCR on `main`. Terraform runs `minikube start` with one control-plane and two workers. The API Deployment has two replicas, spread across those workers, behind a NodePort. Postgres is one pod on the database worker, with a PersistentVolume. The API reads its configuration from a ConfigMap and the database password from a Secret.
 
 ## Run it on a clean machine
 
-You need Docker, Node.js 22, Terraform 1.5 or newer, and kubectl. Terraform's kind provider creates the cluster, so a separate kind binary is not required. `scripts/deploy.sh` imports the image into each node with `ctr`, because a kind CLI that is older than the cluster cannot load images into it.
+You need Docker, Node.js 22, Terraform 1.5 or newer, kubectl, and minikube. Terraform runs `minikube start`. `scripts/deploy.sh` loads the image with `minikube image load`.
 
 ### App and database, one command
 
@@ -79,10 +79,21 @@ terraform init
 terraform apply
 cd ..
 ./scripts/deploy.sh
+```
+
+Leave this running in a second terminal. It forwards the Service to the laptop:
+
+```bash
+./scripts/forward.sh
+```
+
+Then:
+
+```bash
 ./scripts/smoke.sh http://127.0.0.1:30080
 ```
 
-`scripts/deploy.sh` builds `vocabulary-api:local`, loads it into the kind cluster, writes a database password to `.secrets/db-password` (gitignored), and applies the manifests. Run it again after a code change.
+`scripts/deploy.sh` builds `vocabulary-api:local`, loads it with `minikube image load`, writes a database password to `.secrets/db-password` (gitignored), and applies the manifests. Run it again after a code change. The forward goes to the Service, so a request still succeeds when one pod is gone.
 
 Details of deploy, rollback, and the first things to check are in [docs/RUNBOOK.md](docs/RUNBOOK.md). The product page is [docs/PRODUCT.md](docs/PRODUCT.md). The evidence write-up is [docs/WRITEUP.md](docs/WRITEUP.md).
 

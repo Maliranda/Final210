@@ -1,5 +1,5 @@
-samples 340
-ok 340
+samples 336
+ok 336
 failed 0
 longest gap seconds 0.000
-window seconds 89.751
+window seconds 89.000

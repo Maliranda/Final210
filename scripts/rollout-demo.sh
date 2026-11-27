@@ -4,31 +4,23 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 export KUBECONFIG="${KUBECONFIG:-$ROOT/terraform/kubeconfig}"
-URL="${1:-http://127.0.0.1:30080/health}"
 EVIDENCE="$ROOT/docs/evidence"
 mkdir -p "$EVIDENCE"
 LOG="$EVIDENCE/rollout-requests.log"
 DURATION="${DURATION:-150}"
 
-python3 - "$URL" "$LOG" "$DURATION" <<'PY' &
-import sys, time, urllib.request
-url, out, duration = sys.argv[1], sys.argv[2], float(sys.argv[3])
-end = time.time() + duration
-with open(out, "w", encoding="utf-8") as fh:
-    while time.time() < end:
-        started = time.time()
-        code = "ERR"
-        detail = ""
-        try:
-            with urllib.request.urlopen(url, timeout=2) as res:
-                code = str(res.status)
-                detail = res.read(160).decode("utf-8", "replace").replace("\n", " ")
-        except Exception as exc:
-            detail = type(exc).__name__
-        fh.write(f"{started:.3f} {code} {detail}\n")
-        fh.flush()
-        time.sleep(0.25)
-PY
+kubectl -n vocabulary exec deploy/postgres -- sh -c "
+end=\$((\$(date +%s) + ${DURATION}))
+while [ \$(date +%s) -lt \$end ]; do
+  ts=\$(date +%s)
+  if body=\$(wget -qO- --timeout=2 http://vocabulary-api.vocabulary.svc/health); then
+    echo \"\$ts 200 \$body\"
+  else
+    echo \"\$ts ERR\"
+  fi
+  sleep 0.25
+done
+" > "$LOG" &
 PROBE=$!
 
 sleep 4
@@ -79,7 +71,5 @@ if rows and fail_start is not None:
     longest = max(longest, rows[-1][0] - fail_start)
 print(f"longest gap seconds {longest:.3f}")
 if bad:
-    print("failed lines:")
-    for ts, code, detail in bad:
-        print(f"{ts:.3f} {code} {detail}")
+    print("first failed sample:", bad[0][0], bad[0][1])
 PY

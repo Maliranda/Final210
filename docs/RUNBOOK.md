@@ -1,6 +1,6 @@
 # Runbook
 
-The cluster is local kind. `KUBECONFIG` is `terraform/kubeconfig` after `terraform apply`. Commands below assume the repository root unless they say otherwise.
+The cluster is local minikube, profile `vocabulary`. `KUBECONFIG` is `terraform/kubeconfig` after `terraform apply`. Commands below assume the repository root unless they say otherwise.
 
 ## Deploy
 
@@ -10,10 +10,18 @@ terraform init
 terraform apply
 cd ..
 ./scripts/deploy.sh
+```
+
+In a second terminal, leave this running, then smoke-test from the first:
+
+```bash
+./scripts/forward.sh
 ./scripts/smoke.sh http://127.0.0.1:30080
 ```
 
-`scripts/deploy.sh` builds `vocabulary-api:local`, loads that image into the kind nodes, creates the Secret from `.secrets/db-password` (it generates the file the first time), and applies `k8s/`. The password file is gitignored. `k8s/secret.example.yaml` only shows the shape of the Secret. Do not apply it over the generated one.
+`scripts/forward.sh` is `kubectl port-forward` to the Service. Minikube with the Docker driver cannot publish port 30080 on every node, because the laptop only has that port once. The forward targets the Service, so traffic keeps moving when one pod disappears.
+
+`scripts/deploy.sh` builds `vocabulary-api:local`, loads that image with `minikube image load`, creates the Secret from `.secrets/db-password` (it generates the file the first time), and applies `k8s/`. The password file is gitignored. `k8s/secret.example.yaml` only shows the shape of the Secret. Do not apply it over the generated one.
 
 A second `./scripts/deploy.sh` rebuilds the image and re-applies the manifests. A second `terraform apply`, with no edits, should report no changes.
 
@@ -74,7 +82,7 @@ The PodDisruptionBudget keeps drain from evicting the last API pod. It will not 
 ./scripts/failover-demo.sh
 ```
 
-The script probes `http://127.0.0.1:30080/health` and drains the worker that is not running Postgres. It uncordons that node when it finishes. The request log is written to `docs/evidence/`.
+The script asks the Service for `/health` from inside the Postgres pod, and drains the worker that is not running Postgres and is not the control-plane. It uncordons that node when it finishes. The request log is written to `docs/evidence/`. The probe is inside the cluster because `kubectl port-forward` is tied to one pod and dies when that pod is evicted.
 
 ## Tear down
 
@@ -84,8 +92,8 @@ cd terraform
 terraform destroy
 ```
 
-Destroy deletes the kind cluster, including the Postgres volume that lived on the node. Copy any words you need before you do that. Nothing in AWS is created by this project, so there is no cloud bill to shut off. Do not leave the kind cluster running overnight if you are done. It holds three Docker containers.
+Destroy runs `minikube delete` for the `vocabulary` profile, including the Postgres volume that lived on the node. Copy any words you need before you do that. Nothing in AWS is created by this project, so there is no cloud bill to shut off. Do not leave the minikube profile running overnight if you are done. It holds three Docker containers.
 
 ## Cost if this ran all month
 
-On the laptop the marginal cost is electricity for three kind nodes, well under a dollar, because the machine is already on. Moving the same shape to AWS and leaving it up would be a different bill. An EKS control plane is about $73 a month. Two small workers (t3.small) are about $30. An application load balancer is about $20 before traffic. A db.t4g.micro for Postgres is about $15. Roughly $140 a month, almost all of it the control plane and the load balancer, for an API that sits idle between study sessions. The first change would be to drop the managed control plane and run the two containers on one small VM, or to shut the cluster down outside the hours someone is actually studying. Prices move. These are late-2026 ballpark figures, not a quote.
+On the laptop the marginal cost is electricity for three minikube nodes, well under a dollar, because the machine is already on. Moving the same shape to AWS and leaving it up would be a different bill. An EKS control plane is about $73 a month. Two small workers (t3.small) are about $30. An application load balancer is about $20 before traffic. A db.t4g.micro for Postgres is about $15. Roughly $140 a month, almost all of it the control plane and the load balancer, for an API that sits idle between study sessions. The first change would be to drop the managed control plane and run the two containers on one small VM, or to shut the cluster down outside the hours someone is actually studying. Prices move. These are late-2026 ballpark figures, not a quote.

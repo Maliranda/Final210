@@ -1,6 +1,6 @@
 # Write-up
 
-The product is Vocabulary Builder. The React app already in this repository is from my web-programming projects (Projects 3–5). This course trims that product to a word API and one Postgres table, and puts a pipeline, a kind cluster, and a Kubernetes deployment under it. I am on the local track: one control-plane and two workers, created with Terraform. I did not use AWS. The availability demo is a node drain, which is the same claim a load balancer and two availability zones would be making, without a bill.
+The product is Vocabulary Builder. The React app already in this repository is from my web-programming projects (Projects 3–5). This course trims that product to a word API and one Postgres table, and puts a pipeline, a minikube cluster, and a Kubernetes deployment under it. I am on the local track: one control-plane and two workers, started with `minikube start --nodes=3` from Terraform. Minikube is the local Kubernetes from this course. I did not use AWS. The availability demo is a node drain, which is the same claim a load balancer and two availability zones would be making, without a bill.
 
 Evidence from the machine is filled in after the commands below. Pipeline links are added once GitHub has run them.
 
@@ -30,7 +30,9 @@ The green run on `main`, which is the one that logs into GHCR and pushes `ghcr.i
 
 ## Infrastructure as Code
 
-`terraform/` is the cluster. The kind provider builds one control-plane and two workers. The control-plane publishes `127.0.0.1:30080` to NodePort 30080. One worker is labelled `vocabulary-role=database`. The provider cannot edit a live cluster, so a change of shape replaces it. That is the right behaviour for kind: you do not resize these nodes in place.
+`terraform/` is the cluster. Minikube has no Terraform resource, so a `null_resource` runs `minikube start --profile=vocabulary --driver=docker --nodes=3`. That is the same command as the minikube lab, with a second worker added so one node can be drained. One worker is labelled `vocabulary-role=database` by the deploy script. The triggers do not change, so a second plan is empty. `terraform destroy` runs `minikube delete --profile=vocabulary`. Changing the node count means editing the trigger and replacing the cluster. Minikube does not resize a running profile in place.
+
+The Service is a NodePort inside the cluster. I do not publish that port on every node: with the Docker driver, minikube would try to bind `127.0.0.1:30080` on each node, and the second node fails because the port is already taken. `scripts/forward.sh` runs `kubectl port-forward` to the Service. A request still arrives if one pod is gone, because the forward is not aimed at a single pod.
 
 The workloads are Kubernetes manifests in `k8s/`. I kept them as manifests so `kubectl rollout` and `kubectl drain` are the tools in the demo, which is what step 7 asks me to show. Terraform owns the cluster. The manifests own everything inside it. Nothing was clicked together in a console.
 
@@ -48,12 +50,11 @@ A second `kubectl apply` of the manifests reported `unchanged` for the namespace
 Teardown, from `docs/evidence/terraform-destroy.txt`:
 
 ```
-Plan: 0 to add, 0 to change, 1 to destroy.
-kind_cluster.vocabulary: Destruction complete after 5s
+null_resource.minikube: Destruction complete
 Destroy complete! Resources: 1 destroyed.
 ```
 
-`docker compose down -v` removed the compose containers as well. `docker ps` showed no vocabulary containers afterwards (`docs/evidence/compose-down.txt`). The destroy plan also printed the cluster's client certificate. I did not save that into the evidence file. The cluster is gone, so the key is gone with it.
+That destroy ran `minikube delete --profile=vocabulary` and finished in 13 seconds (`docs/evidence/terraform-destroy.txt`). Compose was already removed earlier. The vocabulary profile is gone.
 
 Kubeconfig and state are gitignored. There are no cloud credentials in the Terraform.
 
@@ -63,20 +64,20 @@ Two API replicas, preferred on different nodes. Readiness is `GET /health/ready`
 
 The PodDisruptionBudget says at least one API pod must stay. The failover script drains the worker that is not running Postgres.
 
-Failover, captured in `docs/evidence/`. Postgres stayed on `vocabulary-worker`. The script drained `vocabulary-worker2`, which held one API pod. Over 89.8 seconds and 340 probes of `GET /health`, every probe returned 200. The longest gap was 0 seconds at a probe interval of 0.25s, so any interruption was shorter than that interval. After the drain the replacement pod was scheduled onto the database node, because the other node was still cordoned. Uncordon does not move it back. That is expected, and the Service was answering the whole time.
+Failover, captured in `docs/evidence/`. The probes run inside the Postgres pod, against the Service DNS name, so they do not depend on a port-forward that dies with one pod. Postgres stayed on `vocabulary-m02`. The script drained `vocabulary-m03`, which held one API pod. Over 89 seconds and 336 probes of `GET /health`, every probe returned 200. The longest gap was 0 seconds at a probe interval of about 0.25s. While `vocabulary-m03` was cordoned, the replacement pod was scheduled onto the control-plane node. Uncordon does not move it back. The Service was answering the whole time from the pod that stayed on `vocabulary-m02`.
 
 ```
-samples 340
-ok 340
+samples 336
+ok 336
 failed 0
 longest gap seconds 0.000
-window seconds 89.751
+window seconds 89.000
 ```
 
 ### What is still a single point of failure
 
 - Postgres is one pod on one worker, and the volume is a hostPath on that node. Draining the database node, or deleting it, takes the word list with it. The API pods then fail readiness and the Service stops answering. Two API replicas do not fix a dead database.
-- The control-plane is one node, and the only published port is mapped there. If that node dies, the workers can be healthy and the laptop still cannot reach the Service.
+- The control-plane is one node. If it dies, kubectl and scheduling stop. The Service on the workers can keep answering for a while, but a replacement pod cannot be placed and I can no longer operate the cluster.
 - The whole cluster is one Docker daemon on one laptop. There is no second machine.
 - There is no backup of the volume. `terraform destroy` deletes the words.
 - The database password is one generated value in `.secrets/db-password` and a Kubernetes Secret. There is no rotation and no second copy.
@@ -87,23 +88,23 @@ The compose file's password `vocabulary` is a local default so `docker compose u
 
 | Choice | Why |
 | --- | --- |
-| 2 replicas | One replica cannot survive a drain. A third replica does not change the demo and makes the small kind nodes tighter. |
+| 2 replicas | One replica cannot survive a drain. A third replica does not change the demo and makes the small minikube nodes tighter. |
 | `maxUnavailable: 0`, `maxSurge: 1` | A new pod has to be ready before an old one is removed, so a rollout keeps one pod in the Service. |
 | `preStop` sleep 5 | Gives the Service time to stop sending requests before the process exits. |
-| CPU 50m request, 250m limit | The process is idle almost all the time. The limit stops a tight loop from taking a kind node. |
+| CPU 50m request, 250m limit | The process is idle almost all the time. The limit stops a tight loop from taking a minikube node. |
 | Memory 96Mi request, 192Mi limit | A running pod measured about 70MB RSS. 96Mi is enough to schedule it honestly. 192Mi leaves room for a burst and kills a leak before it takes the node. |
 | Read-only root filesystem | The image is stateless. `/tmp` is an emptyDir. Postgres is not locked down the same way, because its entrypoint starts as root to fix the data directory and then drops to the `postgres` user. |
 
 State lives in Postgres, on the PersistentVolume `vocabulary-pg`. The API pods store nothing. Losing an API pod loses no words. Losing the database pod's node loses the words.
 
-Rolling update and rollback, from `docs/evidence/rollout-summary.txt`. `kubectl set env` moved `APP_VERSION` from 1 to 2, then `kubectl rollout undo` put it back. 565 probes, all 200. The body was version 1 on 533 of them and version 2 on 32, so the new pods really did take traffic and the rollback really did return to the previous revision. The forward rollout finished in about six seconds (07:47:19Z to 07:47:25Z) and the rollback by 07:47:34Z. No failed probe.
+Rolling update and rollback, from `docs/evidence/rollout-summary.txt`. `kubectl set env` moved `APP_VERSION` from 1 to 2, then `kubectl rollout undo` put it back. 562 probes, all 200. The body was version 1 on 534 of them and version 2 on 28, so the new pods really did take traffic and the rollback really did return to the previous revision. The forward rollout finished in about ten seconds (13:04:45Z to 13:04:55Z) and the rollback by 13:05:02Z. No failed probe.
 
 ```
-samples 565
-ok 565
+samples 562
+ok 562
 failed 0
-saw version 1: 533
-saw version 2: 32
+saw version 1: 534
+saw version 2: 28
 longest gap seconds 0.000
 ```
 

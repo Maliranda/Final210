@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build the API image, load it into the kind cluster, and apply the manifests.
+# Build the API image, load it into the minikube cluster, and apply the manifests.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,21 +18,11 @@ fi
 PASSWORD="$(tr -d '[:space:]' < "$ROOT/.secrets/db-password")"
 
 echo "Building vocabulary-api:local"
-# Provenance attestations make containerd on the kind nodes reject the index.
 docker build --provenance=false --sbom=false -t vocabulary-api:local "$ROOT/api"
 
-# Import with ctr. `kind load` fails when the kind CLI is older than the
-# containerd inside the cluster Terraform just created.
-TAR="$(mktemp /tmp/vocabulary-api.XXXXXX.tar)"
-docker save vocabulary-api:local -o "$TAR"
-while IFS= read -r node; do
-  [[ -z "$node" ]] && continue
-  echo "Importing image into ${node}"
-  docker cp "$TAR" "${node}:/vocabulary-api.tar"
-  docker exec "$node" ctr -n k8s.io images import /vocabulary-api.tar
-  docker exec "$node" rm -f /vocabulary-api.tar
-done < <(kubectl get nodes -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}')
-rm -f "$TAR"
+CLUSTER="${CLUSTER_NAME:-vocabulary}"
+echo "Loading image into minikube profile ${CLUSTER}"
+minikube image load vocabulary-api:local --profile "$CLUSTER"
 
 if ! kubectl get nodes -l vocabulary-role=database --no-headers 2>/dev/null | grep -q .; then
   FIRST="$(kubectl get nodes -l '!node-role.kubernetes.io/control-plane' -o jsonpath='{.items[0].metadata.name}')"

@@ -1,37 +1,35 @@
-resource "kind_cluster" "vocabulary" {
-  name            = var.cluster_name
-  kubeconfig_path = "${path.module}/kubeconfig"
-  wait_for_ready  = true
+# The course cluster is minikube. Terraform has no minikube resource, so this
+# runs the same `minikube start` used in class and deletes that profile on destroy.
+# The triggers do not change between applies, so a second plan is empty.
+resource "null_resource" "minikube" {
+  triggers = {
+    profile   = var.cluster_name
+    nodes  = "3"
+    driver = "docker"
+    cpus   = "2"
+    memory    = "2048"
+  }
 
-  # The provider cannot update a cluster in place. Changing a node forces a new one.
-  kind_config {
-    kind        = "Cluster"
-    api_version = "kind.x-k8s.io/v1alpha4"
+  provisioner "local-exec" {
+    interpreter = ["/bin/bash", "-c"]
+    working_dir = path.module
+    command     = <<-EOT
+      set -euo pipefail
+      minikube start \
+        --profile='${var.cluster_name}' \
+        --driver=docker \
+        --nodes=3 \
+        --cpus=2 \
+        --memory=2048 \
+        --wait=true
+      kubectl config view --context='${var.cluster_name}' --minify --flatten \
+        > kubeconfig
+    EOT
+  }
 
-    node {
-      role = "control-plane"
-
-      extra_port_mappings {
-        container_port = var.host_port
-        host_port      = var.host_port
-        listen_address = "127.0.0.1"
-        protocol       = "TCP"
-      }
-    }
-
-    # Postgres is pinned here so a drain of the other worker does not take the data with it.
-    node {
-      role = "worker"
-      labels = {
-        vocabulary-role = "database"
-      }
-    }
-
-    node {
-      role = "worker"
-      labels = {
-        vocabulary-role = "app"
-      }
-    }
+  provisioner "local-exec" {
+    when        = destroy
+    interpreter = ["/bin/bash", "-c"]
+    command     = "minikube delete --profile='${self.triggers.profile}'"
   }
 }

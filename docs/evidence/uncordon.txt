@@ -1,1 +1,1 @@
-node/vocabulary-worker2 uncordoned
+node/vocabulary-m03 uncordoned

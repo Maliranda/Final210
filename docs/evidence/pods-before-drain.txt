@@ -1,4 +1,4 @@
-NAME                              READY   STATUS    RESTARTS   AGE   IP           NODE                 NOMINATED NODE   READINESS GATES
-postgres-65ff9f99f6-sdwzj         1/1     Running   0          91s   10.244.1.3   vocabulary-worker    <none>           <none>
-vocabulary-api-57867f77cc-jprmt   1/1     Running   0          16s   10.244.2.3   vocabulary-worker2   <none>           <none>
-vocabulary-api-57867f77cc-kpgzn   1/1     Running   0          11s   10.244.1.4   vocabulary-worker    <none>           <none>
+NAME                              READY   STATUS    RESTARTS   AGE     IP           NODE             NOMINATED NODE   READINESS GATES
+postgres-65ff9f99f6-xmsnc         1/1     Running   0          6m25s   10.244.1.3   vocabulary-m02   <none>           <none>
+vocabulary-api-57867f77cc-ftkg4   1/1     Running   0          3m48s   10.244.2.4   vocabulary-m03   <none>           <none>
+vocabulary-api-57867f77cc-qpww5   1/1     Running   0          23s     10.244.1.5   vocabulary-m02   <none>           <none>
